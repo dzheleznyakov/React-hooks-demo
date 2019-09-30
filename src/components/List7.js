@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useReducer } from 'react';
 
-import { useFormInput } from '../hooks/forms';
+import { useFormInput } from '../hooks/forms1';
 
 let effectCount = 0;
 
@@ -50,7 +50,10 @@ const List = (props) => {
         // onChange={event => setValue(event.target.value)}
         onChange={input.onChange}
       />
-      <button onClick={onButtonClicked}>Add</button>
+      <button 
+        onClick={onButtonClicked}
+        disabled={!input.validity}
+      >Add</button>
       <ul>
         {names.map((name, index) => (
           <li 
