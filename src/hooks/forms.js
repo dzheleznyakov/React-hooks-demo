@@ -13,5 +13,10 @@ export const useFormInput = () => {
     }
   };
 
-  return { value, onChange: inputChangeHandler, validity };
+  const reset = () => {
+    setValue('');
+    setValidity(false);
+  }
+
+  return { value, onChange: inputChangeHandler, validity, reset };
 };

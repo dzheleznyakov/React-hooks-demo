@@ -1,20 +1,29 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useReducer } from 'react';
 
 import { useFormInput } from '../hooks/forms';
 
 let effectCount = 0;
 
 const List = (props) => {
-  const [value, setValue] = useState('');
-  const [names, setNames] = useState([]);
+  // const [value, setValue] = useState('');
+  // const [names, setNames] = useState([]);
+  const input = useFormInput();
   const inputRef = useRef();
 
-  const todoInput = useFormInput();
+  const namesReducer = (state, action) => {
+    switch(action.type) {
+      case 'ADD': return state.concat(action.payload);
+      case 'DELETE': return state.slice(0, action.payload).concat(state.slice(action.payload + 1));
+      default: return state;
+    }
+  };
+
+  const [names, dispatchName] = useReducer(namesReducer, []);
 
   const onButtonClicked = event => {
-    const todoName = todoInput.value;
-    setNames(names.concat(value))
-    setValue('');
+    // setNames(names.concat(value))
+    dispatchName({ type: 'ADD', payload: input.value });
+    input.reset();
     inputRef.current.focus()
   };
 
@@ -36,15 +45,19 @@ const List = (props) => {
       <input 
         type="text" 
         placeholder="Enter name"
-        value={value}
+        value={input.value}
         ref={inputRef}
-        onChange={event => setValue(event.target.value)}
+        // onChange={event => setValue(event.target.value)}
+        onChange={input.onChange}
       />
-      <button
-        onClick={onButtonClicked}
-      >Add</button>
+      <button onClick={onButtonClicked}>Add</button>
       <ul>
-        {names.map((name, index) => <li key={`li-${index}`}>{name}</li>)}
+        {names.map((name, index) => (
+          <li 
+            key={`li-${index}`} 
+            onClick={() => dispatchName({ type: 'DELETE', payload: index })
+          }>{name}</li>
+        ))}
       </ul>
     </div>
   );

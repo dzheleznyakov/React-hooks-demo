@@ -1,29 +1,27 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useReducer } from 'react';
 
 let effectCount = 0;
 
 const List = (props) => {
   const [value, setValue] = useState('');
-  const [names, setNames] = useState([]);
+  // const [names, setNames] = useState([]);
   const inputRef = useRef();
 
+  const namesReducer = (state, action) => {
+    switch(action.type) {
+      case 'ADD': return state.concat(action.payload);
+      case 'DELETE': return state.slice(0, action.payload).concat(state.slice(action.payload + 1));
+      default: return state;
+    }
+  };
+
+  const [names, dispatchName] = useReducer(namesReducer, []);
+
   const onButtonClicked = event => {
-    new Promise(resolve => {
-      setTimeout(() => {
-        if (names.length === 0) {
-          setNames(names.concat(value))
-          // setValue('');
-          inputRef.current.focus()
-        } else {
-          const lastName = names[names.length - 1];
-          if (lastName !== value) {
-            setNames(names.concat(value));
-            inputRef.current.focus()
-          }
-        }
-        resolve();
-      }, 1000);
-    })
+    // setNames(names.concat(value))
+    dispatchName({ type: 'ADD', payload: value });
+    setValue('');
+    inputRef.current.focus()
   };
 
   const mouseClickHandler = (event) => {
@@ -48,14 +46,15 @@ const List = (props) => {
         ref={inputRef}
         onChange={event => setValue(event.target.value)}
       />
-      <button
-        onClick={onButtonClicked}
-      >Add</button>
-      {useMemo(() => (
-          <ul>
-            {names.map((name, index) => <li key={`li-${index}`}>{name}</li>)}
-          </ul>
-        ), [names])}
+      <button onClick={onButtonClicked}>Add</button>
+      <ul>
+        {names.map((name, index) => (
+          <li 
+            key={`li-${index}`} 
+            onClick={() => dispatchName({ type: 'DELETE', payload: index })
+          }>{name}</li>
+        ))}
+      </ul>
     </div>
   );
 };
